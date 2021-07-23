@@ -11,6 +11,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GloboTicket.TicketManagement.Application;
+using GloboTicket.TicketManagement.Infrastructure;
+using GloboTicket.TicketManagement.Persistence;
 
 namespace GloboTicket.TicketManagement.Api
 {
@@ -26,11 +29,18 @@ namespace GloboTicket.TicketManagement.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddApplicationServices();
+            services.AddInfrastructureServices(Configuration);
+            services.AddPersistenceServices(Configuration);
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "GloboTicket.TicketManagement.Api", Version = "v1" });
+            });
+            services.AddCors(options =>
+            {
+                options.AddPolicy("Open", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
             });
         }
 
@@ -47,7 +57,7 @@ namespace GloboTicket.TicketManagement.Api
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            app.UseCors("Open");
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
